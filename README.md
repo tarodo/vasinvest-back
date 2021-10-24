@@ -6,4 +6,5 @@ This is the backend for the service.
 ____
 ## To start
 1. ```pip install -r requirements.txt```
+1. Create ```.env``` from ```.env.Example```
 1. ```uvicorn main:app```
