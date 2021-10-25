@@ -1,31 +1,15 @@
-from datetime import timedelta, datetime
-from typing import Optional
-
-import jwt
-from decouple import config
+from datetime import timedelta
 
 from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordRequestForm
+from decouple import config
 
+from app.core.security import create_access_token
 from app.crud.users import authenticate_user
 from app.schemas.token import Token
 
-ACCESS_TOKEN_EXPIRE_MINUTES = int(config('ACCESS_TOKEN_EXPIRE_MINUTES'))
-SECRET_KEY = config('SECRET_KEY')
-ALGORITHM = config('ALGORITHM')
-
 router = APIRouter()
-
-
-def create_access_token(data: dict, expires_delta: Optional[timedelta] = None):
-    to_encode = data.copy()
-    if expires_delta:
-        expire = datetime.utcnow() + expires_delta
-    else:
-        expire = datetime.utcnow() + timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
-    to_encode.update({"exp": expire})
-    encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
-    return encoded_jwt
+ACCESS_TOKEN_EXPIRE_MINUTES = int(config('ACCESS_TOKEN_EXPIRE_MINUTES'))
 
 
 @router.post("/token", response_model=Token)

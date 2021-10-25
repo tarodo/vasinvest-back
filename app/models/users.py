@@ -12,5 +12,3 @@ class Users(models.Model):
     created_at = fields.DatetimeField(auto_now_add=True)
     modified_at = fields.DatetimeField(auto_now=True)
 
-    def verify_password(self, password):
-        return bcrypt.verify(password, self.hashed_password)

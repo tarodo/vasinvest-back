@@ -6,8 +6,8 @@ import datetime
 class UserBase(BaseModel):
     email: EmailStr
     full_name: Optional[constr(max_length=100)]
-    is_superuser: Optional[bool]
-    is_active: Optional[bool]
+    is_superuser: Optional[bool] = False
+    is_active: Optional[bool] = True
 
 
 class UserIn(UserBase):

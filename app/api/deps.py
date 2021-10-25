@@ -5,7 +5,7 @@ from fastapi.security import SecurityScopes, OAuth2PasswordBearer
 from pydantic import ValidationError
 from starlette import status
 
-from app.crud.users import get_user_by_email
+from app.crud.users import get_by_email
 from app.models.users import Users
 from app.schemas.token import TokenData
 
@@ -43,7 +43,7 @@ async def get_current_user(
     except (jwt.DecodeError, ValidationError):
         raise credentials_exception
 
-    user = await get_user_by_email(email)
+    user = await get_by_email(email)
     if user is None:
         raise credentials_exception
 
@@ -59,7 +59,15 @@ async def get_current_user(
 
 async def get_current_active_user(
     current_user: Users = Security(get_current_user, scopes=["me"])
-):
+) -> Users:
     if not current_user.is_active:
         raise HTTPException(status_code=400, detail="Inactive user")
+    return current_user
+
+
+async def get_current_active_superuser(
+    current_user: Users = Security(get_current_user, scopes=["me"])
+) -> Users:
+    if not current_user.is_superuser:
+        raise HTTPException(status_code=400, detail="Not superuser")
     return current_user
