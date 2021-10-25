@@ -1,14 +1,13 @@
-from datetime import timedelta, datetime
+from datetime import datetime, timedelta
 from typing import Optional
 
 import jwt
 from decouple import config
-
 from passlib.context import CryptContext
 
-ACCESS_TOKEN_EXPIRE_MINUTES = int(config('ACCESS_TOKEN_EXPIRE_MINUTES'))
-SECRET_KEY = config('SECRET_KEY')
-ALGORITHM = config('ALGORITHM')
+ACCESS_TOKEN_EXPIRE_MINUTES = int(config("ACCESS_TOKEN_EXPIRE_MINUTES"))
+SECRET_KEY = config("SECRET_KEY")
+ALGORITHM = config("ALGORITHM")
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 

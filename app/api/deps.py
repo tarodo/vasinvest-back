@@ -1,7 +1,7 @@
 import jwt
 from decouple import config
 from fastapi import Depends, HTTPException, Security
-from fastapi.security import SecurityScopes, OAuth2PasswordBearer
+from fastapi.security import OAuth2PasswordBearer, SecurityScopes
 from pydantic import ValidationError
 from starlette import status
 
@@ -9,14 +9,12 @@ from app.crud.users import get_by_email
 from app.models.users import Users
 from app.schemas.token import TokenData
 
-SECRET_KEY = config('SECRET_KEY')
-ALGORITHM = config('ALGORITHM')
+SECRET_KEY = config("SECRET_KEY")
+ALGORITHM = config("ALGORITHM")
 
 oauth2_scheme = OAuth2PasswordBearer(
     tokenUrl="token",
-    scopes={
-        "me": "Read information about the current user."
-    },
+    scopes={"me": "Read information about the current user."},
 )
 
 
@@ -26,7 +24,7 @@ async def get_current_user(
     if security_scopes.scopes:
         authenticate_value = f'Bearer scope="{security_scopes.scope_str}"'
     else:
-        authenticate_value = f"Bearer"
+        authenticate_value = "Bearer"
 
     credentials_exception = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,

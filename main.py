@@ -1,12 +1,12 @@
 from fastapi import FastAPI
 
-from app.api import users, login
+from app.api import login, users
 from db import init_db
 
 
 def create_application() -> FastAPI:
     application = FastAPI()
-    application.include_router(users.router, prefix='/users', tags=["users"])
+    application.include_router(users.router, prefix="/users", tags=["users"])
     application.include_router(login.router, tags=["login"])
 
     return application

@@ -1,15 +1,17 @@
 from fastapi import APIRouter, Depends, HTTPException
 
-from app.api.deps import get_current_active_user, get_current_active_superuser
-from app.crud.users import get_by_email, create
+from app.api.deps import get_current_active_superuser, get_current_active_user
+from app.crud.users import create, get_by_email
 from app.models.users import Users
 from app.schemas.users import UserIn, UserOut
 
 router = APIRouter()
 
 
-@router.post('/', response_model=UserOut)
-async def create_user(payload: UserIn, current_user: Users = Depends(get_current_active_superuser)) -> Users:
+@router.post("/", response_model=UserOut)
+async def create_user(
+    payload: UserIn, current_user: Users = Depends(get_current_active_superuser)
+) -> Users:
     """
     Create new user.
     """

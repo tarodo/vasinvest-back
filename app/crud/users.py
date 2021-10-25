@@ -1,12 +1,13 @@
 from typing import Optional, Union
+
 from decouple import config
 
-from app.core.security import verify_password, get_password_hash
+from app.core.security import get_password_hash, verify_password
 from app.models.users import Users
 from app.schemas.users import UserIn
 
-SECRET_KEY = config('SECRET_KEY')
-ALGORITHM = config('ALGORITHM')
+SECRET_KEY = config("SECRET_KEY")
+ALGORITHM = config("ALGORITHM")
 
 
 async def get_by_email(email: str) -> Optional[Users]:
@@ -31,7 +32,7 @@ async def create(payload: UserIn) -> Users:
         full_name=payload.full_name,
         hashed_password=get_password_hash(payload.password),
         is_superuser=payload.is_superuser,
-        is_active=payload.is_active
+        is_active=payload.is_active,
     )
 
     await user.save()

@@ -1,4 +1,3 @@
-from passlib.handlers.bcrypt import bcrypt
 from tortoise import fields, models
 
 
@@ -11,4 +10,3 @@ class Users(models.Model):
     is_active = fields.BooleanField(default=True)
     created_at = fields.DatetimeField(auto_now_add=True)
     modified_at = fields.DatetimeField(auto_now=True)
-

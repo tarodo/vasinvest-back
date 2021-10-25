@@ -1,6 +1,7 @@
-from pydantic import BaseModel, EmailStr, constr
-from typing import Optional
 import datetime
+from typing import Optional
+
+from pydantic import BaseModel, EmailStr, constr
 
 
 class UserBase(BaseModel):
