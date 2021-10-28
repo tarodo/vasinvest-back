@@ -1,9 +1,10 @@
-from decouple import config
 from fastapi import FastAPI
 from tortoise.contrib.fastapi import register_tortoise
 
+from app.core.config import settings
+
 TORTOISE_ORM = {
-    "connections": {"default": config("DATABASE_URL")},
+    "connections": {"default": settings.DATABASE_URL},
     "apps": {
         "models": {
             "models": [
@@ -19,7 +20,7 @@ TORTOISE_ORM = {
 def init_db(app: FastAPI) -> None:
     register_tortoise(
         app,
-        db_url=config("DATABASE_URL"),
+        db_url=settings.DATABASE_URL,
         modules={
             "models": [
                 "app.models.users",

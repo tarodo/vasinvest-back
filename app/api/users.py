@@ -3,7 +3,7 @@ from fastapi import APIRouter, Depends, HTTPException
 from app.api.deps import get_current_active_superuser, get_current_active_user
 from app.crud.users import create, get_by_email
 from app.models.users import Users
-from app.schemas.users import UserIn, UserOut
+from app.schemas import UserIn, UserOut
 
 router = APIRouter()
 

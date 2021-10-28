@@ -1,5 +1,4 @@
 import jwt
-from decouple import config
 from fastapi import Depends, HTTPException, Security
 from fastapi.security import OAuth2PasswordBearer, SecurityScopes
 from pydantic import ValidationError
@@ -9,8 +8,7 @@ from app.crud.users import get_by_email
 from app.models.users import Users
 from app.schemas.token import TokenData
 
-SECRET_KEY = config("SECRET_KEY")
-ALGORITHM = config("ALGORITHM")
+from app.core.config import settings
 
 oauth2_scheme = OAuth2PasswordBearer(
     tokenUrl="token",
@@ -32,7 +30,7 @@ async def get_current_user(
         headers={"WWW-Authenticate": authenticate_value},
     )
     try:
-        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+        payload = jwt.decode(token, settings.SECRET_KEY, algorithms=[settings.ALGORITHM])
         email: str = payload.get("sub")
         if email is None:
             raise credentials_exception
