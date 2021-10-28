@@ -3,15 +3,17 @@ from datetime import timedelta
 from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordRequestForm
 
+from app.api.deps import get_current_user
 from app.core.security import create_access_token
 from app.crud.users import authenticate_user
-from app.schemas.token import Token
+from app import schemas
+from app import models
 from app.core.config import settings
 
 router = APIRouter()
 
 
-@router.post("/token", response_model=Token)
+@router.post("/token", response_model=schemas.Token)
 async def login_access_token(form_data: OAuth2PasswordRequestForm = Depends()) -> dict:
     user = await authenticate_user(form_data.username, form_data.password)
     if not user:
@@ -26,3 +28,11 @@ async def login_access_token(form_data: OAuth2PasswordRequestForm = Depends()) -
         expires_delta=access_token_expires,
     )
     return {"access_token": access_token, "token_type": "bearer"}
+
+
+@router.post("/test-token", response_model=schemas.User)
+def test_token(current_user: models.Users = Depends(get_current_user)) -> models.Users:
+    """
+    Test access token
+    """
+    return current_user
