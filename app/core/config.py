@@ -1,7 +1,7 @@
 import secrets
 from decouple import config
 
-from pydantic import AnyHttpUrl, BaseSettings, EmailStr
+from pydantic import BaseSettings, EmailStr
 
 
 class Settings(BaseSettings):
@@ -13,6 +13,9 @@ class Settings(BaseSettings):
 
     FIRST_SUPERUSER: EmailStr = config("ADMIN_EMAIL")
     FIRST_SUPERUSER_PASSWORD: str = config("ADMIN_PSWD")
+
+    TEST_USER_EMAIL: EmailStr = "test@example.com"
+    TEST_USER_PASS: str = 'secret_password'
 
 
 settings = Settings()

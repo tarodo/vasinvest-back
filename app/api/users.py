@@ -19,7 +19,7 @@ async def create_user(
     if user:
         raise HTTPException(
             status_code=400,
-            detail="The user with this username already exists in the system.",
+            detail="The user with this email already exists in the system.",
         )
 
     user_in = await create(payload)
