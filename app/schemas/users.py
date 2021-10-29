@@ -16,6 +16,7 @@ class UserIn(UserBase):
 
 
 class UserOut(UserBase):
+    id: int
     created_at: datetime.datetime
     modified_at: datetime.datetime
 

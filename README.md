@@ -9,3 +9,11 @@ ____
 1. Create .env by ```cp .env.Example .env```
 1. ```uvicorn main:app```
 1. Create SU by ```python create_su.py```
+
+## To test
+1. ```pytest --cov="."```
+
+## Preparing new code
+1. ```flake8 .```
+1. ```black .```
+1. ```isort .```

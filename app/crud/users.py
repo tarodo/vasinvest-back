@@ -32,3 +32,19 @@ async def create(payload: UserIn) -> Users:
 
     await user.save()
     return user
+
+
+async def get(user_id: int) -> Optional[Users]:
+    user: Users = await Users.filter(id=user_id).first()
+    return user
+
+
+async def update(user: Users, payload: UserIn) -> Users:
+    data = payload.dict()
+    if "password" in data:
+        del data["password"]
+    data["hashed_password"] = get_password_hash(payload.password)
+    await user.update_from_dict(data)
+    await user.save()
+
+    return user
