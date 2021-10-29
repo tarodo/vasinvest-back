@@ -32,7 +32,7 @@ async def create_user(
     return user_in
 
 
-@router.get("/me", response_model=UserOut)
+@router.get("/me", response_model=UserOut, status_code=200)
 async def read_users_me(current_user: Users = Depends(get_current_active_user)):
     """
     Get user info.
