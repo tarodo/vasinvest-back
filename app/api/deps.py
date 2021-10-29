@@ -4,11 +4,10 @@ from fastapi.security import OAuth2PasswordBearer, SecurityScopes
 from pydantic import ValidationError
 from starlette import status
 
+from app.core.config import settings
 from app.crud.users import get_by_email
 from app.models.users import Users
 from app.schemas.token import TokenData
-
-from app.core.config import settings
 
 oauth2_scheme = OAuth2PasswordBearer(
     tokenUrl="token",
@@ -30,7 +29,9 @@ async def get_current_user(
         headers={"WWW-Authenticate": authenticate_value},
     )
     try:
-        payload = jwt.decode(token, settings.SECRET_KEY, algorithms=[settings.ALGORITHM])
+        payload = jwt.decode(
+            token, settings.SECRET_KEY, algorithms=[settings.ALGORITHM]
+        )
         email: str = payload.get("sub")
         if email is None:
             raise credentials_exception
