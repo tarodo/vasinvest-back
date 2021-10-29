@@ -10,6 +10,7 @@ TORTOISE_ORM = {
             "models": [
                 "app.models.users",
                 "aerich.models",
+                "app.models.platforms",
             ],
             "default_connection": "default",
         },
@@ -24,6 +25,7 @@ def init_db(app: FastAPI) -> None:
         modules={
             "models": [
                 "app.models.users",
+                "app.models.platforms",
             ]
         },
         generate_schemas=True,
