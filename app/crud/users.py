@@ -1,4 +1,4 @@
-from typing import Optional, Union
+from typing import List, Optional, Union
 
 from app.core.security import get_password_hash, verify_password
 from app.models import Users
@@ -37,6 +37,10 @@ async def create(payload: UserIn) -> Users:
 async def get(user_id: int) -> Optional[Users]:
     user: Users = await Users.filter(id=user_id).first()
     return user
+
+
+async def get_multi(skip: int, limit: int) -> List[Users]:
+    return await Users().all().offset(skip).limit(limit).all()
 
 
 async def update(user: Users, payload: UserIn) -> Users:

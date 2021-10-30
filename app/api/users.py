@@ -1,10 +1,11 @@
 from enum import Enum
+from typing import List
 
 from fastapi import APIRouter, Depends, Path
 
 from app.api import raise_400
 from app.api.deps import get_current_active_superuser, get_current_active_user
-from app.crud.users import create, get, get_by_email, update
+from app.crud.users import create, get, get_by_email, get_multi, update
 from app.models.users import Users
 from app.schemas import UserIn, UserOut
 
@@ -38,6 +39,18 @@ async def read_users_me(current_user: Users = Depends(get_current_active_user)):
     Get user info.
     """
     return current_user
+
+
+@router.get("/", response_model=List[UserOut], status_code=200)
+async def read_users(
+    skip: int = 0,
+    limit: int = 100,
+    current_user: Users = Depends(get_current_active_superuser),
+) -> List[Users]:
+    """
+    Get all users info.
+    """
+    return await get_multi(skip, limit)
 
 
 @router.put("/me", response_model=UserOut, status_code=200)

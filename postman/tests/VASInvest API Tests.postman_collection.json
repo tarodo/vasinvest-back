@@ -6,13 +6,13 @@
 	},
 	"item": [
 		{
-			"name": "Admin",
+			"name": "Users",
 			"item": [
 				{
-					"name": "Token",
+					"name": "Init",
 					"item": [
 						{
-							"name": "Token: Post",
+							"name": "Admin",
 							"event": [
 								{
 									"listen": "test",
@@ -62,12 +62,7 @@
 											"value": "me",
 											"type": "text"
 										}
-									],
-									"options": {
-										"raw": {
-											"language": "json"
-										}
-									}
+									]
 								},
 								"url": {
 									"raw": "{{baseUrl}}/token",
@@ -82,7 +77,7 @@
 							"response": []
 						},
 						{
-							"name": "Token: Post User",
+							"name": "User",
 							"event": [
 								{
 									"listen": "test",
@@ -132,12 +127,7 @@
 											"value": "me",
 											"type": "text"
 										}
-									],
-									"options": {
-										"raw": {
-											"language": "json"
-										}
-									}
+									]
 								},
 								"url": {
 									"raw": "{{baseUrl}}/token",
@@ -151,46 +141,36 @@
 							},
 							"response": []
 						}
+					],
+					"auth": {
+						"type": "noauth"
+					},
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									""
+								]
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									""
+								]
+							}
+						}
 					]
 				},
 				{
-					"name": "Users",
+					"name": "POST",
 					"item": [
 						{
-							"name": "User: GET Me",
-							"event": [
-								{
-									"listen": "test",
-									"script": {
-										"exec": [
-											"pm.test(\"Status code is 200\", function () {\r",
-											"    pm.response.to.have.status(200);\r",
-											"});\r",
-											"\r",
-											"pm.collectionVariables.set(\"admin_id\", pm.response.json()[\"id\"]);"
-										],
-										"type": "text/javascript"
-									}
-								}
-							],
-							"request": {
-								"method": "GET",
-								"header": [],
-								"url": {
-									"raw": "{{baseUrl}}/users/me",
-									"host": [
-										"{{baseUrl}}"
-									],
-									"path": [
-										"users",
-										"me"
-									]
-								}
-							},
-							"response": []
-						},
-						{
-							"name": "User: POST",
+							"name": "Admin",
 							"event": [
 								{
 									"listen": "test",
@@ -207,6 +187,16 @@
 								}
 							],
 							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{admin_token}}",
+											"type": "string"
+										}
+									]
+								},
 								"method": "POST",
 								"header": [],
 								"body": {
@@ -232,14 +222,25 @@
 							"response": []
 						},
 						{
-							"name": "User: PUT",
+							"name": "X Admin Exists",
 							"event": [
 								{
 									"listen": "test",
 									"script": {
 										"exec": [
-											"pm.test(\"Status code is 200\", function () {\r",
-											"    pm.response.to.have.status(200);\r",
+											"pm.test(\"Status code is 400\", function () {\r",
+											"    pm.response.to.have.status(400);\r",
+											"});\r",
+											"\r",
+											"pm.test(\"Verify response\", function () {\r",
+											"    var jsonData = pm.response.json();\r",
+											"    pm.expect(jsonData).to.have.all.keys(\"detail\");\r",
+											"    pm.expect(jsonData.detail).to.have.all.keys(\"error\", \"error_msg\")\r",
+											"});\r",
+											"\r",
+											"pm.test(\"Token has a valid ERROR type\", function () {\r",
+											"    var jsonData = pm.response.json();\r",
+											"    pm.expect(jsonData.detail.error).to.eql(\"UserErrors.UserExists\");\r",
 											"});"
 										],
 										"type": "text/javascript"
@@ -247,11 +248,21 @@
 								}
 							],
 							"request": {
-								"method": "PUT",
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{admin_token}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "POST",
 								"header": [],
 								"body": {
 									"mode": "raw",
-									"raw": "{\r\n    \"email\": \"{{$randomEmail}}\",\r\n    \"password\": \"{{$randomPassword}}\",\r\n    \"full_name\": \"{{$randomFullName}}\"\r\n}",
+									"raw": "{\r\n    \"email\": \"{{user_email}}\",\r\n    \"password\": \"{{user_password}}\"\r\n}",
 									"options": {
 										"raw": {
 											"language": "json"
@@ -259,13 +270,74 @@
 									}
 								},
 								"url": {
-									"raw": "{{baseUrl}}/users/{{temp_user_id}}",
+									"raw": "{{baseUrl}}/users/",
 									"host": [
 										"{{baseUrl}}"
 									],
 									"path": [
 										"users",
-										"{{temp_user_id}}"
+										""
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "X User",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Status code is 400\", function () {\r",
+											"    pm.response.to.have.status(400);\r",
+											"});\r",
+											"\r",
+											"pm.test(\"Verify response\", function () {\r",
+											"    var jsonData = pm.response.json();\r",
+											"    pm.expect(jsonData).to.have.all.keys(\"detail\");\r",
+											"    pm.expect(jsonData.detail).to.have.all.keys(\"error\", \"error_msg\")\r",
+											"});\r",
+											"\r",
+											"pm.test(\"Token has a valid ERROR type\", function () {\r",
+											"    var jsonData = pm.response.json();\r",
+											"    pm.expect(jsonData.detail.error).to.eql(\"LoginErrors.NotSU\");\r",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{user_token}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"email\": \"{{$randomEmail}}\",\r\n    \"password\": \"{{$randomPassword}}\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/users/",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"users",
+										""
 									]
 								}
 							},
@@ -273,14 +345,7 @@
 						}
 					],
 					"auth": {
-						"type": "bearer",
-						"bearer": [
-							{
-								"key": "token",
-								"value": "{{admin_token}}",
-								"type": "string"
-							}
-						]
+						"type": "noauth"
 					},
 					"event": [
 						{
@@ -304,10 +369,708 @@
 					]
 				},
 				{
-					"name": "Platforms",
+					"name": "GET",
 					"item": [
 						{
-							"name": "Platforms: POST",
+							"name": "Me Admin",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Status code is 200\", function () {\r",
+											"    pm.response.to.have.status(200);\r",
+											"});\r",
+											"\r",
+											"pm.collectionVariables.set(\"admin_id\", pm.response.json()[\"id\"]);"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{admin_token}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{baseUrl}}/users/me",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"users",
+										"me"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "All Admin",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Status code is 200\", function () {\r",
+											"    pm.response.to.have.status(200);\r",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{admin_token}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{baseUrl}}/users/",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"users",
+										""
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Me User",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Status code is 200\", function () {\r",
+											"    pm.response.to.have.status(200);\r",
+											"});\r",
+											"\r",
+											"pm.collectionVariables.set(\"user_id\", pm.response.json()[\"id\"]);"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{user_token}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{baseUrl}}/users/me",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"users",
+										"me"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "X All User",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Status code is 400\", function () {\r",
+											"    pm.response.to.have.status(400);\r",
+											"});\r",
+											"\r",
+											"pm.test(\"Verify response\", function () {\r",
+											"    var jsonData = pm.response.json();\r",
+											"    pm.expect(jsonData).to.have.all.keys(\"detail\");\r",
+											"    pm.expect(jsonData.detail).to.have.all.keys(\"error\", \"error_msg\")\r",
+											"});\r",
+											"\r",
+											"pm.test(\"Token has a valid ERROR type\", function () {\r",
+											"    var jsonData = pm.response.json();\r",
+											"    pm.expect(jsonData.detail.error).to.eql(\"LoginErrors.NotSU\");\r",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{user_token}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{baseUrl}}/users/",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"users",
+										""
+									]
+								}
+							},
+							"response": []
+						}
+					],
+					"auth": {
+						"type": "noauth"
+					},
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									""
+								]
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									""
+								]
+							}
+						}
+					]
+				},
+				{
+					"name": "PUT",
+					"item": [
+						{
+							"name": "Admin",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Status code is 200\", function () {\r",
+											"    pm.response.to.have.status(200);\r",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{admin_token}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "PUT",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"email\": \"{{$randomEmail}}\",\r\n    \"password\": \"{{$randomPassword}}\",\r\n    \"full_name\": \"{{$randomFullName}}\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/users/{{temp_user_id}}",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"users",
+										"{{temp_user_id}}"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "User Itself",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Status code is 200\", function () {\r",
+											"    pm.response.to.have.status(200);\r",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{user_token}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "PUT",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"email\": \"{{user_email}}\",\r\n    \"password\": \"{{user_password}}\",\r\n    \"full_name\": \"{{$randomFullName}}\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/users/me",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"users",
+										"me"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "X User Not Itself",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Status code is 400\", function () {\r",
+											"    pm.response.to.have.status(400);\r",
+											"});\r",
+											"\r",
+											"pm.test(\"Verify response\", function () {\r",
+											"    var jsonData = pm.response.json();\r",
+											"    pm.expect(jsonData).to.have.all.keys(\"detail\");\r",
+											"    pm.expect(jsonData.detail).to.have.all.keys(\"error\", \"error_msg\")\r",
+											"});\r",
+											"\r",
+											"pm.test(\"Token has a valid ERROR type\", function () {\r",
+											"    var jsonData = pm.response.json();\r",
+											"    pm.expect(jsonData.detail.error).to.eql(\"LoginErrors.NotSU\");\r",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{user_token}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "PUT",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"email\": \"{{user_email}}\",\r\n    \"password\": \"{{user_password}}\",\r\n    \"full_name\": \"{{$randomFullName}}\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/users/{{temp_user_id}}",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"users",
+										"{{temp_user_id}}"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Admin Make SU",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Status code is 200\", function () {\r",
+											"    pm.response.to.have.status(200);\r",
+											"});\r",
+											"\r",
+											"pm.test(\"Token has a valid ERROR type\", function () {\r",
+											"    var jsonData = pm.response.json();\r",
+											"    pm.expect(jsonData.is_superuser).to.eql(true);\r",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{admin_token}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "PUT",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"email\": \"{{$randomEmail}}\",\r\n    \"password\": \"{{$randomPassword}}\",\r\n    \"full_name\": \"{{$randomFullName}}\",\r\n    \"is_superuser\": true\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/users/{{temp_user_id}}",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"users",
+										"{{temp_user_id}}"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "X User Itself Make SU",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Status code is 400\", function () {\r",
+											"    pm.response.to.have.status(400);\r",
+											"});\r",
+											"\r",
+											"pm.test(\"Verify response\", function () {\r",
+											"    var jsonData = pm.response.json();\r",
+											"    pm.expect(jsonData).to.have.all.keys(\"detail\");\r",
+											"    pm.expect(jsonData.detail).to.have.all.keys(\"error\", \"error_msg\")\r",
+											"});\r",
+											"\r",
+											"pm.test(\"Token has a valid ERROR type\", function () {\r",
+											"    var jsonData = pm.response.json();\r",
+											"    pm.expect(jsonData.detail.error).to.eql(\"UserErrors.UserNotSU\");\r",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{user_token}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "PUT",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"email\": \"{{user_email}}\",\r\n    \"password\": \"{{user_password}}\",\r\n    \"full_name\": \"{{$randomFullName}}\",\r\n    \"is_superuser\": true\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/users/me",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"users",
+										"me"
+									]
+								}
+							},
+							"response": []
+						}
+					],
+					"auth": {
+						"type": "noauth"
+					},
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									""
+								]
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									""
+								]
+							}
+						}
+					]
+				}
+			],
+			"auth": {
+				"type": "noauth"
+			},
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							""
+						]
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							""
+						]
+					}
+				}
+			]
+		},
+		{
+			"name": "Platforms",
+			"item": [
+				{
+					"name": "Init",
+					"item": [
+						{
+							"name": "Admin",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Status code is 200\", function () {\r",
+											"    pm.response.to.have.status(200);\r",
+											"});\r",
+											"\r",
+											"pm.test(\"Verify response\", function () {\r",
+											"    var jsonData = pm.response.json();\r",
+											"    pm.expect(jsonData).to.have.all.keys(\"access_token\", \"token_type\");\r",
+											"});\r",
+											"\r",
+											"pm.test(\"Token has a BEARER type\", function () {\r",
+											"    var jsonData = pm.response.json();\r",
+											"    pm.expect(jsonData.token_type).to.eql(\"bearer\");\r",
+											"});\r",
+											"\r",
+											"pm.collectionVariables.set(\"admin_token\", pm.response.json()[\"access_token\"]);"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"auth": {
+									"type": "noauth"
+								},
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "urlencoded",
+									"urlencoded": [
+										{
+											"key": "username",
+											"value": "{{admin_email}}",
+											"type": "text"
+										},
+										{
+											"key": "password",
+											"value": "{{admin_password}}",
+											"type": "text"
+										},
+										{
+											"key": "scope",
+											"value": "me",
+											"type": "text"
+										}
+									]
+								},
+								"url": {
+									"raw": "{{baseUrl}}/token",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"token"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "User",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Status code is 200\", function () {\r",
+											"    pm.response.to.have.status(200);\r",
+											"});\r",
+											"\r",
+											"pm.test(\"Verify response\", function () {\r",
+											"    var jsonData = pm.response.json();\r",
+											"    pm.expect(jsonData).to.have.all.keys(\"access_token\", \"token_type\");\r",
+											"});\r",
+											"\r",
+											"pm.test(\"Token has a BEARER type\", function () {\r",
+											"    var jsonData = pm.response.json();\r",
+											"    pm.expect(jsonData.token_type).to.eql(\"bearer\");\r",
+											"});\r",
+											"\r",
+											"pm.collectionVariables.set(\"user_token\", pm.response.json()[\"access_token\"]);"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"auth": {
+									"type": "noauth"
+								},
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "urlencoded",
+									"urlencoded": [
+										{
+											"key": "username",
+											"value": "{{user_email}}",
+											"type": "text"
+										},
+										{
+											"key": "password",
+											"value": "{{user_password}}",
+											"type": "text"
+										},
+										{
+											"key": "scope",
+											"value": "me",
+											"type": "text"
+										}
+									]
+								},
+								"url": {
+									"raw": "{{baseUrl}}/token",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"token"
+									]
+								}
+							},
+							"response": []
+						}
+					],
+					"auth": {
+						"type": "noauth"
+					},
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									""
+								]
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									""
+								]
+							}
+						}
+					]
+				},
+				{
+					"name": "POST",
+					"item": [
+						{
+							"name": "Admin",
 							"event": [
 								{
 									"listen": "test",
@@ -322,13 +1085,23 @@
 											"    pm.expect(jsonData.user_id).to.eql(pm.collectionVariables.get(\"admin_id\"));\r",
 											"});\r",
 											"\r",
-											"pm.collectionVariables.set(\"temp_platform_id\", pm.response.json()[\"id\"]);"
+											"pm.collectionVariables.set(\"temp_platform_id_admin\", pm.response.json()[\"id\"]);"
 										],
 										"type": "text/javascript"
 									}
 								}
 							],
 							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{admin_token}}",
+											"type": "string"
+										}
+									]
+								},
 								"method": "POST",
 								"header": [],
 								"body": {
@@ -354,7 +1127,7 @@
 							"response": []
 						},
 						{
-							"name": "Platforms: PUT",
+							"name": "User",
 							"event": [
 								{
 									"listen": "test",
@@ -362,6 +1135,75 @@
 										"exec": [
 											"pm.test(\"Status code is 200\", function () {\r",
 											"    pm.response.to.have.status(200);\r",
+											"});\r",
+											"\r",
+											"pm.test(\"Token has a valid response type\", function () {\r",
+											"    var jsonData = pm.response.json();\r",
+											"    pm.expect(jsonData.user_id).to.eql(pm.collectionVariables.get(\"user_id\"));\r",
+											"});\r",
+											"\r",
+											"pm.collectionVariables.set(\"temp_platform_id\", pm.response.json()[\"id\"]);\r",
+											"pm.collectionVariables.set(\"temp_platform_name\", pm.response.json()[\"name\"]);"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{user_token}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"name\": \"{{$randomCompanyName}}\",\r\n    \"description\": \"{{$randomBitcoin}}\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/platforms/",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"platforms",
+										""
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "X User Same Platform",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Status code is 400\", function () {\r",
+											"    pm.response.to.have.status(400);\r",
+											"});\r",
+											"\r",
+											"pm.test(\"Verify response\", function () {\r",
+											"    var jsonData = pm.response.json();\r",
+											"    pm.expect(jsonData).to.have.all.keys(\"detail\");\r",
+											"    pm.expect(jsonData.detail).to.have.all.keys(\"error\", \"error_msg\")\r",
+											"});\r",
+											"\r",
+											"pm.test(\"Token has a valid ERROR type\", function () {\r",
+											"    var jsonData = pm.response.json();\r",
+											"    pm.expect(jsonData.detail.error).to.eql(\"PlatformErrors.PlatformExists\");\r",
 											"});"
 										],
 										"type": "text/javascript"
@@ -369,6 +1211,132 @@
 								}
 							],
 							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{user_token}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"name\": \"{{temp_platform_name}}\",\r\n    \"description\": \"{{$randomBitcoin}}\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/platforms/",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"platforms",
+										""
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Other User Same Platform",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Status code is 200\", function () {\r",
+											"    pm.response.to.have.status(200);\r",
+											"});\r",
+											"\r",
+											"\r",
+											"pm.test(\"Token has a valid name\", function () {\r",
+											"    var jsonData = pm.response.json();\r",
+											"    pm.expect(jsonData.name).to.eql(pm.collectionVariables.get(\"temp_platform_name\"));\r",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{admin_token}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"name\": \"{{temp_platform_name}}\",\r\n    \"description\": \"{{$randomBitcoin}}\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/platforms/",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"platforms",
+										""
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "PUT",
+					"item": [
+						{
+							"name": "User -> User's",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Status code is 200\", function () {\r",
+											"    pm.response.to.have.status(200);\r",
+											"});\r",
+											"\r",
+											"pm.test(\"Token has a valid id\", function () {\r",
+											"    var jsonData = pm.response.json();\r",
+											"    pm.expect(jsonData.id).to.eql(pm.collectionVariables.get(\"temp_platform_id\"));\r",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{user_token}}",
+											"type": "string"
+										}
+									]
+								},
 								"method": "PUT",
 								"header": [],
 								"body": {
@@ -394,7 +1362,7 @@
 							"response": []
 						},
 						{
-							"name": "X Platforms: PUT User",
+							"name": "X User -> Other's",
 							"event": [
 								{
 									"listen": "test",
@@ -442,6 +1410,61 @@
 									}
 								},
 								"url": {
+									"raw": "{{baseUrl}}/platforms/{{temp_platform_id_admin}}",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"platforms",
+										"{{temp_platform_id_admin}}"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Admin -> User's",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Status code is 200\", function () {\r",
+											"    pm.response.to.have.status(200);\r",
+											"});\r",
+											"\r",
+											"pm.test(\"Token has a valid id\", function () {\r",
+											"    var jsonData = pm.response.json();\r",
+											"    pm.expect(jsonData.id).to.eql(pm.collectionVariables.get(\"temp_platform_id\"));\r",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{admin_token}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "PUT",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"name\": \"{{$randomCompanyName}}\",\r\n    \"description\": \"{{$randomBitcoin}}\",\r\n    \"is_active\": false\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
 									"raw": "{{baseUrl}}/platforms/{{temp_platform_id}}",
 									"host": [
 										"{{baseUrl}}"
@@ -455,186 +1478,7 @@
 							"response": []
 						},
 						{
-							"name": "Platforms: GET",
-							"event": [
-								{
-									"listen": "test",
-									"script": {
-										"exec": [
-											"pm.test(\"Status code is 200\", function () {\r",
-											"    pm.response.to.have.status(200);\r",
-											"});"
-										],
-										"type": "text/javascript"
-									}
-								}
-							],
-							"request": {
-								"method": "GET",
-								"header": [],
-								"url": {
-									"raw": "{{baseUrl}}/platforms/",
-									"host": [
-										"{{baseUrl}}"
-									],
-									"path": [
-										"platforms",
-										""
-									]
-								}
-							},
-							"response": []
-						}
-					],
-					"auth": {
-						"type": "bearer",
-						"bearer": [
-							{
-								"key": "token",
-								"value": "{{admin_token}}",
-								"type": "string"
-							}
-						]
-					},
-					"event": [
-						{
-							"listen": "prerequest",
-							"script": {
-								"type": "text/javascript",
-								"exec": [
-									""
-								]
-							}
-						},
-						{
-							"listen": "test",
-							"script": {
-								"type": "text/javascript",
-								"exec": [
-									""
-								]
-							}
-						}
-					]
-				}
-			]
-		},
-		{
-			"name": "User",
-			"item": [
-				{
-					"name": "Token",
-					"item": [
-						{
-							"name": "Token: Post",
-							"event": [
-								{
-									"listen": "test",
-									"script": {
-										"exec": [
-											"pm.test(\"Status code is 200\", function () {\r",
-											"    pm.response.to.have.status(200);\r",
-											"});\r",
-											"\r",
-											"pm.test(\"Verify response\", function () {\r",
-											"    var jsonData = pm.response.json();\r",
-											"    pm.expect(jsonData).to.have.all.keys(\"access_token\", \"token_type\");\r",
-											"});\r",
-											"\r",
-											"pm.test(\"Token has a BEARER type\", function () {\r",
-											"    var jsonData = pm.response.json();\r",
-											"    pm.expect(jsonData.token_type).to.eql(\"bearer\");\r",
-											"});\r",
-											"\r",
-											"pm.collectionVariables.set(\"user_token\", pm.response.json()[\"access_token\"]);"
-										],
-										"type": "text/javascript"
-									}
-								}
-							],
-							"request": {
-								"auth": {
-									"type": "noauth"
-								},
-								"method": "POST",
-								"header": [],
-								"body": {
-									"mode": "urlencoded",
-									"urlencoded": [
-										{
-											"key": "username",
-											"value": "{{user_email}}",
-											"type": "text"
-										},
-										{
-											"key": "password",
-											"value": "{{user_password}}",
-											"type": "text"
-										},
-										{
-											"key": "scope",
-											"value": "me",
-											"type": "text"
-										}
-									],
-									"options": {
-										"raw": {
-											"language": "json"
-										}
-									}
-								},
-								"url": {
-									"raw": "{{baseUrl}}/token",
-									"host": [
-										"{{baseUrl}}"
-									],
-									"path": [
-										"token"
-									]
-								}
-							},
-							"response": []
-						}
-					]
-				},
-				{
-					"name": "Users",
-					"item": [
-						{
-							"name": "User: GET Me",
-							"event": [
-								{
-									"listen": "test",
-									"script": {
-										"exec": [
-											"pm.test(\"Status code is 200\", function () {\r",
-											"    pm.response.to.have.status(200);\r",
-											"});\r",
-											"\r",
-											"pm.collectionVariables.set(\"user_id\", pm.response.json()[\"id\"]);"
-										],
-										"type": "text/javascript"
-									}
-								}
-							],
-							"request": {
-								"method": "GET",
-								"header": [],
-								"url": {
-									"raw": "{{baseUrl}}/users/me",
-									"host": [
-										"{{baseUrl}}"
-									],
-									"path": [
-										"users",
-										"me"
-									]
-								}
-							},
-							"response": []
-						},
-						{
-							"name": "X User: POST",
+							"name": "X User Wrong ID",
 							"event": [
 								{
 									"listen": "test",
@@ -652,7 +1496,7 @@
 											"\r",
 											"pm.test(\"Token has a valid ERROR type\", function () {\r",
 											"    var jsonData = pm.response.json();\r",
-											"    pm.expect(jsonData.detail.error).to.eql(\"LoginErrors.NotSU\");\r",
+											"    pm.expect(jsonData.detail.error).to.eql(\"PlatformErrors.NoRightsToUpdate\");\r",
 											"});"
 										],
 										"type": "text/javascript"
@@ -660,51 +1504,21 @@
 								}
 							],
 							"request": {
-								"method": "POST",
-								"header": [],
-								"body": {
-									"mode": "raw",
-									"raw": "{\r\n    \"email\": \"{{$randomEmail}}\",\r\n    \"password\": \"{{$randomPassword}}\"\r\n}",
-									"options": {
-										"raw": {
-											"language": "json"
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{user_token}}",
+											"type": "string"
 										}
-									}
-								},
-								"url": {
-									"raw": "{{baseUrl}}/users/",
-									"host": [
-										"{{baseUrl}}"
-									],
-									"path": [
-										"users",
-										""
 									]
-								}
-							},
-							"response": []
-						},
-						{
-							"name": "User: PUT",
-							"event": [
-								{
-									"listen": "test",
-									"script": {
-										"exec": [
-											"pm.test(\"Status code is 200\", function () {\r",
-											"    pm.response.to.have.status(200);\r",
-											"});"
-										],
-										"type": "text/javascript"
-									}
-								}
-							],
-							"request": {
+								},
 								"method": "PUT",
 								"header": [],
 								"body": {
 									"mode": "raw",
-									"raw": "{\r\n    \"email\": \"{{user_email}}\",\r\n    \"password\": \"{{user_password}}\",\r\n    \"full_name\": \"{{$randomFullName}}\"\r\n}",
+									"raw": "{\r\n    \"name\": \"{{$randomCompanyName}}\",\r\n    \"description\": \"{{$randomBitcoin}}\",\r\n    \"is_active\": true\r\n}",
 									"options": {
 										"raw": {
 											"language": "json"
@@ -712,13 +1526,13 @@
 									}
 								},
 								"url": {
-									"raw": "{{baseUrl}}/users/me",
+									"raw": "{{baseUrl}}/platforms/666",
 									"host": [
 										"{{baseUrl}}"
 									],
 									"path": [
-										"users",
-										"me"
+										"platforms",
+										"666"
 									]
 								}
 							},
@@ -726,14 +1540,7 @@
 						}
 					],
 					"auth": {
-						"type": "bearer",
-						"bearer": [
-							{
-								"key": "token",
-								"value": "{{user_token}}",
-								"type": "string"
-							}
-						]
+						"type": "noauth"
 					},
 					"event": [
 						{
@@ -757,10 +1564,10 @@
 					]
 				},
 				{
-					"name": "Platforms",
+					"name": "GET",
 					"item": [
 						{
-							"name": "Platforms: POST",
+							"name": "User -> User's",
 							"event": [
 								{
 									"listen": "test",
@@ -770,51 +1577,9 @@
 											"    pm.response.to.have.status(200);\r",
 											"});\r",
 											"\r",
-											"pm.test(\"Token has a valid response type\", function () {\r",
+											"pm.test(\"Token has a valid id\", function () {\r",
 											"    var jsonData = pm.response.json();\r",
-											"    pm.expect(jsonData.user_id).to.eql(pm.collectionVariables.get(\"user_id\"));\r",
-											"});\r",
-											"\r",
-											"pm.collectionVariables.set(\"platform_temp_id\", pm.response.json()[\"id\"]);"
-										],
-										"type": "text/javascript"
-									}
-								}
-							],
-							"request": {
-								"method": "POST",
-								"header": [],
-								"body": {
-									"mode": "raw",
-									"raw": "{\r\n    \"name\": \"{{$randomCompanyName}}\",\r\n    \"description\": \"{{$randomBitcoin}}\",\r\n    \"is_active\": true\r\n}",
-									"options": {
-										"raw": {
-											"language": "json"
-										}
-									}
-								},
-								"url": {
-									"raw": "{{baseUrl}}/platforms/",
-									"host": [
-										"{{baseUrl}}"
-									],
-									"path": [
-										"platforms",
-										""
-									]
-								}
-							},
-							"response": []
-						},
-						{
-							"name": "Platforms: PUT",
-							"event": [
-								{
-									"listen": "test",
-									"script": {
-										"exec": [
-											"pm.test(\"Status code is 200\", function () {\r",
-											"    pm.response.to.have.status(200);\r",
+											"    pm.expect(jsonData.id).to.eql(pm.collectionVariables.get(\"temp_platform_id\"));\r",
 											"});"
 										],
 										"type": "text/javascript"
@@ -822,32 +1587,192 @@
 								}
 							],
 							"request": {
-								"method": "PUT",
-								"header": [],
-								"body": {
-									"mode": "raw",
-									"raw": "{\r\n    \"name\": \"{{$randomCompanyName}}\",\r\n    \"description\": \"{{$randomBitcoin}}\",\r\n    \"is_active\": true\r\n}",
-									"options": {
-										"raw": {
-											"language": "json"
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{user_token}}",
+											"type": "string"
 										}
-									}
+									]
 								},
+								"method": "GET",
+								"header": [],
 								"url": {
-									"raw": "{{baseUrl}}/platforms/{{platform_temp_id}}",
+									"raw": "{{baseUrl}}/platforms/{{temp_platform_id}}",
 									"host": [
 										"{{baseUrl}}"
 									],
 									"path": [
 										"platforms",
-										"{{platform_temp_id}}"
+										"{{temp_platform_id}}"
 									]
 								}
 							},
 							"response": []
 						},
 						{
-							"name": "Platforms: GET",
+							"name": "X User -> Other's",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Status code is 400\", function () {\r",
+											"    pm.response.to.have.status(400);\r",
+											"});\r",
+											"\r",
+											"pm.test(\"Verify response\", function () {\r",
+											"    var jsonData = pm.response.json();\r",
+											"    pm.expect(jsonData).to.have.all.keys(\"detail\");\r",
+											"    pm.expect(jsonData.detail).to.have.all.keys(\"error\", \"error_msg\")\r",
+											"});\r",
+											"\r",
+											"pm.test(\"Token has a valid ERROR type\", function () {\r",
+											"    var jsonData = pm.response.json();\r",
+											"    pm.expect(jsonData.detail.error).to.eql(\"PlatformErrors.NoRightsToRead\");\r",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{user_token}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{baseUrl}}/platforms/{{temp_platform_id_admin}}",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"platforms",
+										"{{temp_platform_id_admin}}"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Admin -> User's",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Status code is 200\", function () {\r",
+											"    pm.response.to.have.status(200);\r",
+											"});\r",
+											"\r",
+											"pm.test(\"Token has a valid id\", function () {\r",
+											"    var jsonData = pm.response.json();\r",
+											"    pm.expect(jsonData.id).to.eql(pm.collectionVariables.get(\"temp_platform_id\"));\r",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{admin_token}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{baseUrl}}/platforms/{{temp_platform_id}}",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"platforms",
+										"{{temp_platform_id}}"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Admin All",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Status code is 200\", function () {\r",
+											"    pm.response.to.have.status(200);\r",
+											"});\r",
+											"\r",
+											"pm.test(\"Only limit platforms\", function () {\r",
+											"    let my_id = pm.collectionVariables.get(\"user_id\")\r",
+											"    var jsonData = pm.response.json();\r",
+											"    let count = 0;\r",
+											"    for (let i in jsonData) {\r",
+											"        count++\r",
+											"    }\r",
+											"    pm.expect(count).to.lte(2)\r",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{admin_token}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{baseUrl}}/platforms/?skip=3&limit=2",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"platforms",
+										""
+									],
+									"query": [
+										{
+											"key": "skip",
+											"value": "3"
+										},
+										{
+											"key": "limit",
+											"value": "2"
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "User All",
 							"event": [
 								{
 									"listen": "test",
@@ -870,6 +1795,16 @@
 								}
 							],
 							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{user_token}}",
+											"type": "string"
+										}
+									]
+								},
 								"method": "GET",
 								"header": [],
 								"url": {
@@ -885,16 +1820,260 @@
 							},
 							"response": []
 						}
+					]
+				},
+				{
+					"name": "DELETE",
+					"item": [
+						{
+							"name": "User -> User's",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Status code is 200\", function () {\r",
+											"    pm.response.to.have.status(200);\r",
+											"});\r",
+											""
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{user_token}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "DELETE",
+								"header": [],
+								"url": {
+									"raw": "{{baseUrl}}/platforms/{{temp_platform_id}}",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"platforms",
+										"{{temp_platform_id}}"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "X User -> User's Wrong ID",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Status code is 400\", function () {\r",
+											"    pm.response.to.have.status(400);\r",
+											"});\r",
+											"\r",
+											"pm.test(\"Verify response\", function () {\r",
+											"    var jsonData = pm.response.json();\r",
+											"    pm.expect(jsonData).to.have.all.keys(\"detail\");\r",
+											"    pm.expect(jsonData.detail).to.have.all.keys(\"error\", \"error_msg\")\r",
+											"});\r",
+											"\r",
+											"pm.test(\"Token has a valid ERROR type\", function () {\r",
+											"    var jsonData = pm.response.json();\r",
+											"    pm.expect(jsonData.detail.error).to.eql(\"PlatformErrors.PlatformNotExists\");\r",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{user_token}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "DELETE",
+								"header": [],
+								"url": {
+									"raw": "{{baseUrl}}/platforms/{{temp_platform_id}}",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"platforms",
+										"{{temp_platform_id}}"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "User",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Status code is 200\", function () {\r",
+											"    pm.response.to.have.status(200);\r",
+											"});\r",
+											"\r",
+											"pm.test(\"Token has a valid response type\", function () {\r",
+											"    var jsonData = pm.response.json();\r",
+											"    pm.expect(jsonData.user_id).to.eql(pm.collectionVariables.get(\"user_id\"));\r",
+											"});\r",
+											"\r",
+											"pm.collectionVariables.set(\"temp_platform_id\", pm.response.json()[\"id\"]);\r",
+											"pm.collectionVariables.set(\"temp_platform_name\", pm.response.json()[\"name\"]);"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{user_token}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"name\": \"{{$randomCompanyName}}\",\r\n    \"description\": \"{{$randomBitcoin}}\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/platforms/",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"platforms",
+										""
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Admin -> User's",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Status code is 200\", function () {\r",
+											"    pm.response.to.have.status(200);\r",
+											"});\r",
+											""
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{admin_token}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "DELETE",
+								"header": [],
+								"url": {
+									"raw": "{{baseUrl}}/platforms/{{temp_platform_id}}",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"platforms",
+										"{{temp_platform_id}}"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "X User -> Other's",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Status code is 400\", function () {\r",
+											"    pm.response.to.have.status(400);\r",
+											"});\r",
+											"\r",
+											"pm.test(\"Verify response\", function () {\r",
+											"    var jsonData = pm.response.json();\r",
+											"    pm.expect(jsonData).to.have.all.keys(\"detail\");\r",
+											"    pm.expect(jsonData.detail).to.have.all.keys(\"error\", \"error_msg\")\r",
+											"});\r",
+											"\r",
+											"pm.test(\"Token has a valid ERROR type\", function () {\r",
+											"    var jsonData = pm.response.json();\r",
+											"    pm.expect(jsonData.detail.error).to.eql(\"PlatformErrors.NoRightsToDelete\");\r",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{user_token}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "DELETE",
+								"header": [],
+								"url": {
+									"raw": "{{baseUrl}}/platforms/{{temp_platform_id_admin}}",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"platforms",
+										"{{temp_platform_id_admin}}"
+									]
+								}
+							},
+							"response": []
+						}
 					],
 					"auth": {
-						"type": "bearer",
-						"bearer": [
-							{
-								"key": "token",
-								"value": "{{user_token}}",
-								"type": "string"
-							}
-						]
+						"type": "noauth"
 					},
 					"event": [
 						{
@@ -916,6 +2095,29 @@
 							}
 						}
 					]
+				}
+			],
+			"auth": {
+				"type": "noauth"
+			},
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							""
+						]
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							""
+						]
+					}
 				}
 			]
 		}
@@ -997,12 +2199,16 @@
 			"value": ""
 		},
 		{
+			"key": "temp_platform_id_admin",
+			"value": ""
+		},
+		{
 			"key": "temp_platform_id",
 			"value": ""
 		},
 		{
-			"key": "platform_temp_id",
-			"value": ""
+			"key": "temp_platform_name",
+			"value": "test_platform_name"
 		}
 	]
 }

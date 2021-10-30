@@ -37,3 +37,8 @@ async def get_multi(skip: int, limit: int) -> List[Platforms]:
 
 async def get_multi_by_owner(user: Users, skip: int, limit: int) -> List[Platforms]:
     return await Platforms().filter(user_id=user.id).offset(skip).limit(limit).all()
+
+
+async def delete(platform: Platforms) -> Platforms:
+    await platform.delete()
+    return platform
