@@ -1,4 +1,4 @@
-from typing import Optional
+from typing import List, Optional
 
 from app.models import Platforms, Tickers, Users
 from app.schemas import TickerIn
@@ -34,3 +34,24 @@ async def update(ticker: Tickers, payload: TickerIn) -> Tickers:
     await ticker.save()
 
     return ticker
+
+
+async def get_multi(skip: int, limit: int) -> List[Tickers]:
+    return await Tickers().all().offset(skip).limit(limit).all()
+
+
+async def get_multi_by_owner(user: Users, skip: int, limit: int) -> List[Tickers]:
+    platforms: List[Platforms] = await user.platforms
+    tickers = []
+    for platform in platforms:
+        plat_tickers: List[Tickers] = await platform.tickers
+        if plat_tickers:
+            tickers += plat_tickers
+    return tickers[skip : skip + limit]
+
+
+async def get_multi_by_platform(
+    platform: Platforms, skip: int, limit: int
+) -> List[Tickers]:
+    tickers: List[Tickers] = await platform.tickers
+    return tickers[skip : skip + limit]

@@ -2463,9 +2463,7 @@
 											"pm.test(\"Status code is 200\", function () {\r",
 											"    pm.response.to.have.status(200);\r",
 											"});\r",
-											"\r",
-											"pm.collectionVariables.set(\"temp_ticker_id\", pm.response.json()[\"id\"]);\r",
-											"pm.collectionVariables.set(\"temp_ticker_code\", pm.response.json()[\"code\"]);"
+											""
 										],
 										"type": "text/javascript"
 									}
@@ -3134,6 +3132,369 @@
 									""
 								]
 							}
+						}
+					]
+				},
+				{
+					"name": "GET",
+					"item": [
+						{
+							"name": "Admin All",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Status code is 200\", function () {\r",
+											"    pm.response.to.have.status(200);\r",
+											"});\r",
+											""
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{admin_token}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{baseUrl}}/tickers/",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"tickers",
+										""
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "User",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Status code is 200\", function () {\r",
+											"    pm.response.to.have.status(200);\r",
+											"});\r",
+											""
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{user_token}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{baseUrl}}/tickers/",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"tickers",
+										""
+									],
+									"query": [
+										{
+											"key": "skip",
+											"value": "2",
+											"disabled": true
+										},
+										{
+											"key": "limit",
+											"value": "3",
+											"disabled": true
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "User by Platform",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Status code is 200\", function () {\r",
+											"    pm.response.to.have.status(200);\r",
+											"});\r",
+											"\r",
+											"pm.test(\"Only one platform\", function () {\r",
+											"    let platform_id = pm.collectionVariables.get(\"temp_platform_id\")\r",
+											"    var jsonData = pm.response.json();\r",
+											"    for (let i in jsonData) {\r",
+											"        pm.expect(jsonData[i].platform_id).to.eql(platform_id)\r",
+											"    }\r",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{user_token}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{baseUrl}}/tickers/?limit=2&platform_id={{temp_platform_id}}",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"tickers",
+										""
+									],
+									"query": [
+										{
+											"key": "skip",
+											"value": "2",
+											"disabled": true
+										},
+										{
+											"key": "limit",
+											"value": "2"
+										},
+										{
+											"key": "platform_id",
+											"value": "{{temp_platform_id}}"
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Admin <- User's platform",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Status code is 200\", function () {\r",
+											"    pm.response.to.have.status(200);\r",
+											"});\r",
+											"\r",
+											"pm.test(\"Only one platform\", function () {\r",
+											"    let platform_id = pm.collectionVariables.get(\"temp_platform_id\")\r",
+											"    var jsonData = pm.response.json();\r",
+											"    for (let i in jsonData) {\r",
+											"        pm.expect(jsonData[i].platform_id).to.eql(platform_id)\r",
+											"    }\r",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{admin_token}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{baseUrl}}/tickers/?limit=2&platform_id={{temp_platform_id}}",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"tickers",
+										""
+									],
+									"query": [
+										{
+											"key": "skip",
+											"value": "2",
+											"disabled": true
+										},
+										{
+											"key": "limit",
+											"value": "2"
+										},
+										{
+											"key": "platform_id",
+											"value": "{{temp_platform_id}}"
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "X User Wrong Platform",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Status code is 400\", function () {\r",
+											"    pm.response.to.have.status(400);\r",
+											"});\r",
+											"\r",
+											"pm.test(\"Verify response\", function () {\r",
+											"    var jsonData = pm.response.json();\r",
+											"    pm.expect(jsonData).to.have.all.keys(\"detail\");\r",
+											"    pm.expect(jsonData.detail).to.have.all.keys(\"error\", \"error_msg\")\r",
+											"});\r",
+											"\r",
+											"pm.test(\"Token has a valid ERROR type\", function () {\r",
+											"    var jsonData = pm.response.json();\r",
+											"    pm.expect(jsonData.detail.error).to.eql(\"TickerErrors.NoRightsToRead\");\r",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{user_token}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{baseUrl}}/tickers/?limit=2&platform_id=666",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"tickers",
+										""
+									],
+									"query": [
+										{
+											"key": "skip",
+											"value": "2",
+											"disabled": true
+										},
+										{
+											"key": "limit",
+											"value": "2"
+										},
+										{
+											"key": "platform_id",
+											"value": "666"
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "X User <- Other's platform",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Status code is 400\", function () {\r",
+											"    pm.response.to.have.status(400);\r",
+											"});\r",
+											"\r",
+											"pm.test(\"Verify response\", function () {\r",
+											"    var jsonData = pm.response.json();\r",
+											"    pm.expect(jsonData).to.have.all.keys(\"detail\");\r",
+											"    pm.expect(jsonData.detail).to.have.all.keys(\"error\", \"error_msg\")\r",
+											"});\r",
+											"\r",
+											"pm.test(\"Token has a valid ERROR type\", function () {\r",
+											"    var jsonData = pm.response.json();\r",
+											"    pm.expect(jsonData.detail.error).to.eql(\"TickerErrors.NoRightsToRead\");\r",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{user_token}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{baseUrl}}/tickers/?limit=2&platform_id={{temp_platform_id_admin}}",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"tickers",
+										""
+									],
+									"query": [
+										{
+											"key": "skip",
+											"value": "2",
+											"disabled": true
+										},
+										{
+											"key": "limit",
+											"value": "2"
+										},
+										{
+											"key": "platform_id",
+											"value": "{{temp_platform_id_admin}}"
+										}
+									]
+								}
+							},
+							"response": []
 						}
 					]
 				}
