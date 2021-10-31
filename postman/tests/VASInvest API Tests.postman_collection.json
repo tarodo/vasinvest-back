@@ -2125,7 +2125,7 @@
 			"name": "Tickers",
 			"item": [
 				{
-					"name": "Init Copy",
+					"name": "Init",
 					"item": [
 						{
 							"name": "Admin",
@@ -2412,7 +2412,7 @@
 											"});\r",
 											"\r",
 											"pm.collectionVariables.set(\"temp_ticker_id\", pm.response.json()[\"id\"]);\r",
-											"pm.collectionVariables.set(\"temp_ticker_code\", pm.response.json()[\"name\"]);"
+											"pm.collectionVariables.set(\"temp_ticker_code\", pm.response.json()[\"code\"]);"
 										],
 										"type": "text/javascript"
 									}
@@ -2434,6 +2434,111 @@
 								"body": {
 									"mode": "raw",
 									"raw": "{\r\n  \"platform_id\": {{temp_platform_id}},\r\n  \"code\": \"{{$randomNoun}}\",\r\n  \"name\": \"{{$randomBitcoin}}\",\r\n  \"description\": \"my first coin\",\r\n  \"type\": \"crypto\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/tickers/",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"tickers",
+										""
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Admin -> User's",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Status code is 200\", function () {\r",
+											"    pm.response.to.have.status(200);\r",
+											"});\r",
+											"\r",
+											"pm.collectionVariables.set(\"temp_ticker_id\", pm.response.json()[\"id\"]);\r",
+											"pm.collectionVariables.set(\"temp_ticker_code\", pm.response.json()[\"code\"]);"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{admin_token}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n  \"platform_id\": {{temp_platform_id}},\r\n  \"code\": \"{{$randomNoun}}\",\r\n  \"name\": \"{{$randomBitcoin}}\",\r\n  \"description\": \"my first coin\",\r\n  \"type\": \"crypto\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/tickers/",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"tickers",
+										""
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Admin -> Admin's",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Status code is 200\", function () {\r",
+											"    pm.response.to.have.status(200);\r",
+											"});\r",
+											"\r",
+											"pm.collectionVariables.set(\"temp_ticker_id_admin\", pm.response.json()[\"id\"]);"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{admin_token}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n  \"platform_id\": {{temp_platform_id_admin}},\r\n  \"code\": \"{{$randomNoun}}\",\r\n  \"name\": \"{{$randomBitcoin}}\",\r\n  \"description\": \"my first coin\",\r\n  \"type\": \"crypto\"\r\n}",
 									"options": {
 										"raw": {
 											"language": "json"
@@ -2509,6 +2614,499 @@
 									"path": [
 										"tickers",
 										""
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "X User Wrong platform",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Status code is 400\", function () {\r",
+											"    pm.response.to.have.status(400);\r",
+											"});\r",
+											"\r",
+											"pm.test(\"Verify response\", function () {\r",
+											"    var jsonData = pm.response.json();\r",
+											"    pm.expect(jsonData).to.have.all.keys(\"detail\");\r",
+											"    pm.expect(jsonData.detail).to.have.all.keys(\"error\", \"error_msg\")\r",
+											"});\r",
+											"\r",
+											"pm.test(\"Token has a valid ERROR type\", function () {\r",
+											"    var jsonData = pm.response.json();\r",
+											"    pm.expect(jsonData.detail.error).to.eql(\"TickerErrors.NoRightsToCreate\");\r",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{user_token}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n  \"platform_id\": 666,\r\n  \"code\": \"{{temp_ticker_code}}\",\r\n  \"name\": \"{{$randomBitcoin}}\",\r\n  \"description\": \"my first coin\",\r\n  \"type\": \"crypto\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/tickers/",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"tickers",
+										""
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "X User -> Other's",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Status code is 400\", function () {\r",
+											"    pm.response.to.have.status(400);\r",
+											"});\r",
+											"\r",
+											"pm.test(\"Verify response\", function () {\r",
+											"    var jsonData = pm.response.json();\r",
+											"    pm.expect(jsonData).to.have.all.keys(\"detail\");\r",
+											"    pm.expect(jsonData.detail).to.have.all.keys(\"error\", \"error_msg\")\r",
+											"});\r",
+											"\r",
+											"pm.test(\"Token has a valid ERROR type\", function () {\r",
+											"    var jsonData = pm.response.json();\r",
+											"    pm.expect(jsonData.detail.error).to.eql(\"TickerErrors.NoRightsToCreate\");\r",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{user_token}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n  \"platform_id\": {{temp_platform_id_admin}},\r\n  \"code\": \"{{temp_ticker_code}}\",\r\n  \"name\": \"{{$randomBitcoin}}\",\r\n  \"description\": \"my first coin\",\r\n  \"type\": \"crypto\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/tickers/",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"tickers",
+										""
+									]
+								}
+							},
+							"response": []
+						}
+					],
+					"auth": {
+						"type": "noauth"
+					},
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									""
+								]
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									""
+								]
+							}
+						}
+					]
+				},
+				{
+					"name": "PUT",
+					"item": [
+						{
+							"name": "User -> User's",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Status code is 200\", function () {\r",
+											"    pm.response.to.have.status(200);\r",
+											"});\r",
+											""
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{user_token}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "PUT",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n  \"platform_id\": {{temp_platform_id}},\r\n  \"code\": \"{{$randomNoun}}\",\r\n  \"name\": \"{{$randomBitcoin}}\",\r\n  \"description\": \"my first update\",\r\n  \"type\": \"share\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/tickers/{{temp_ticker_id}}",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"tickers",
+										"{{temp_ticker_id}}"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "User creates another Platform",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Status code is 200\", function () {\r",
+											"    pm.response.to.have.status(200);\r",
+											"});\r",
+											"\r",
+											"pm.test(\"Token has a valid response type\", function () {\r",
+											"    var jsonData = pm.response.json();\r",
+											"    pm.expect(jsonData.user_id).to.eql(pm.collectionVariables.get(\"user_id\"));\r",
+											"});\r",
+											"\r",
+											"pm.collectionVariables.set(\"temp_platform_id\", pm.response.json()[\"id\"]);\r",
+											"pm.collectionVariables.set(\"temp_platform_name\", pm.response.json()[\"name\"]);"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{user_token}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"name\": \"{{$randomCompanyName}}\",\r\n    \"description\": \"{{$randomBitcoin}}\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/platforms/",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"platforms",
+										""
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "User changes a platform",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Status code is 200\", function () {\r",
+											"    pm.response.to.have.status(200);\r",
+											"});\r",
+											""
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{user_token}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "PUT",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n  \"platform_id\": {{temp_platform_id}},\r\n  \"code\": \"{{$randomNoun}}\",\r\n  \"name\": \"{{$randomBitcoin}}\",\r\n  \"description\": \"my first update\",\r\n  \"type\": \"share\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/tickers/{{temp_ticker_id}}",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"tickers",
+										"{{temp_ticker_id}}"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "X User -> Other's ticker",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Status code is 400\", function () {\r",
+											"    pm.response.to.have.status(400);\r",
+											"});\r",
+											"\r",
+											"pm.test(\"Verify response\", function () {\r",
+											"    var jsonData = pm.response.json();\r",
+											"    pm.expect(jsonData).to.have.all.keys(\"detail\");\r",
+											"    pm.expect(jsonData.detail).to.have.all.keys(\"error\", \"error_msg\")\r",
+											"});\r",
+											"\r",
+											"pm.test(\"Token has a valid ERROR type\", function () {\r",
+											"    var jsonData = pm.response.json();\r",
+											"    pm.expect(jsonData.detail.error).to.eql(\"TickerErrors.NoRightsToUpdate\");\r",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{user_token}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "PUT",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n  \"platform_id\": {{temp_platform_id}},\r\n  \"code\": \"{{$randomNoun}}\",\r\n  \"name\": \"{{$randomBitcoin}}\",\r\n  \"description\": \"my first update\",\r\n  \"type\": \"share\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/tickers/{{temp_ticker_id_admin}}",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"tickers",
+										"{{temp_ticker_id_admin}}"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "X User -> Wrong platform",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Status code is 400\", function () {\r",
+											"    pm.response.to.have.status(400);\r",
+											"});\r",
+											"\r",
+											"pm.test(\"Verify response\", function () {\r",
+											"    var jsonData = pm.response.json();\r",
+											"    pm.expect(jsonData).to.have.all.keys(\"detail\");\r",
+											"    pm.expect(jsonData.detail).to.have.all.keys(\"error\", \"error_msg\")\r",
+											"});\r",
+											"\r",
+											"pm.test(\"Token has a valid ERROR type\", function () {\r",
+											"    var jsonData = pm.response.json();\r",
+											"    pm.expect(jsonData.detail.error).to.eql(\"TickerErrors.NoRightsToCreate\");\r",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{user_token}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "PUT",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n  \"platform_id\": 666,\r\n  \"code\": \"{{$randomNoun}}\",\r\n  \"name\": \"{{$randomBitcoin}}\",\r\n  \"description\": \"my first update\",\r\n  \"type\": \"share\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/tickers/{{temp_ticker_id}}",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"tickers",
+										"{{temp_ticker_id}}"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "X User -> Other's platform",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Status code is 400\", function () {\r",
+											"    pm.response.to.have.status(400);\r",
+											"});\r",
+											"\r",
+											"pm.test(\"Verify response\", function () {\r",
+											"    var jsonData = pm.response.json();\r",
+											"    pm.expect(jsonData).to.have.all.keys(\"detail\");\r",
+											"    pm.expect(jsonData.detail).to.have.all.keys(\"error\", \"error_msg\")\r",
+											"});\r",
+											"\r",
+											"pm.test(\"Token has a valid ERROR type\", function () {\r",
+											"    var jsonData = pm.response.json();\r",
+											"    pm.expect(jsonData.detail.error).to.eql(\"TickerErrors.NoRightsToCreate\");\r",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{user_token}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "PUT",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n  \"platform_id\": {{temp_platform_id_admin}},\r\n  \"code\": \"{{$randomNoun}}\",\r\n  \"name\": \"{{$randomBitcoin}}\",\r\n  \"description\": \"my first update\",\r\n  \"type\": \"share\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/tickers/{{temp_ticker_id}}",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"tickers",
+										"{{temp_ticker_id}}"
 									]
 								}
 							},
@@ -2636,6 +3234,10 @@
 		},
 		{
 			"key": "temp_ticker_code",
+			"value": ""
+		},
+		{
+			"key": "temp_ticker_id_admin",
 			"value": ""
 		}
 	]

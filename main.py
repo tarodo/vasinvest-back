@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 
-from app.api import login, platforms, users, tickers
+from app.api import login, platforms, tickers, users
 from db import init_db
 
 
@@ -11,9 +11,7 @@ def create_application() -> FastAPI:
     application.include_router(
         platforms.router, prefix="/platforms", tags=["platforms"]
     )
-    application.include_router(
-        tickers.router, prefix="/tickers", tags=["tickers"]
-    )
+    application.include_router(tickers.router, prefix="/tickers", tags=["tickers"])
 
     return application
 

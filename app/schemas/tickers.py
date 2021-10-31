@@ -14,11 +14,11 @@ class TickersBase(BaseModel):
     type: TickerTypesEnum
 
 
-class TickersIn(TickersBase):
+class TickerIn(TickersBase):
     pass
 
 
-class TickersOut(TickersBase):
+class TickerOut(TickersBase):
     id: int
     created_at: datetime.datetime
     modified_at: datetime.datetime
