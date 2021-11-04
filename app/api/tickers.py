@@ -8,7 +8,7 @@ from app.api.deps import get_current_active_user
 from app.crud import platforms
 from app.crud.tickers import (create, get_by_code, get_by_id, get_multi,
                               get_multi_by_owner, get_multi_by_platform,
-                              is_mine, update)
+                              is_mine, update, delete)
 from app.models import Platforms, Tickers, Users
 from app.schemas import TickerIn, TickerOut
 
@@ -20,6 +20,7 @@ class TickerErrors(Enum):
     NoRightsToCreate = "User doesn't have rights to create ticker in this platform"
     NoRightsToUpdate = "User doesn't have rights to update this ticker"
     NoRightsToRead = "User doesn't have rights to read this ticker"
+    NoRightsToDelete = "User doesn't have rights to delete this ticker"
 
 
 @router.post("/", response_model=TickerOut, status_code=200)
@@ -114,3 +115,21 @@ async def get_all_tickers(
             raise_400(TickerErrors.NoRightsToRead)
 
         return await get_multi_by_platform(platform, skip, limit)
+
+
+@router.delete("/{ticker_id}", response_model=TickerOut, status_code=200)
+async def delete_ticker(
+        ticker_id: int = Path(..., gt=0),
+        current_user: Users = Depends(get_current_active_user),
+) -> Tickers:
+    """
+    Delete ticker.
+    """
+    ticker: Tickers = await get_by_id(ticker_id)
+    if not ticker:
+        raise_400(TickerErrors.NoRightsToDelete)
+
+    if not current_user.is_superuser and not await is_mine(ticker, current_user):
+        raise_400(TickerErrors.NoRightsToDelete)
+
+    return await delete(ticker)

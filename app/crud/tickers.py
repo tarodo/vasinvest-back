@@ -55,3 +55,8 @@ async def get_multi_by_platform(
 ) -> List[Tickers]:
     tickers: List[Tickers] = await platform.tickers
     return tickers[skip : skip + limit]
+
+
+async def delete(ticker: Tickers) -> Tickers:
+    await ticker.delete()
+    return ticker
