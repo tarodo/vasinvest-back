@@ -12,6 +12,7 @@ TORTOISE_ORM = {
                 "aerich.models",
                 "app.models.platforms",
                 "app.models.tickers",
+                "app.models.currencies",
             ],
             "default_connection": "default",
         },
@@ -28,6 +29,7 @@ def init_db(app: FastAPI) -> None:
                 "app.models.users",
                 "app.models.platforms",
                 "app.models.tickers",
+                "app.models.currencies",
             ]
         },
         generate_schemas=True,
