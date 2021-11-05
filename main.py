@@ -1,4 +1,5 @@
 from fastapi import FastAPI
+from starlette.middleware.cors import CORSMiddleware
 
 from app.api import login, platforms, tickers, users
 from db import init_db
@@ -12,6 +13,13 @@ def create_application() -> FastAPI:
         platforms.router, prefix="/platforms", tags=["platforms"]
     )
     application.include_router(tickers.router, prefix="/tickers", tags=["tickers"])
+    application.add_middleware(
+        CORSMiddleware,
+        allow_origins=["*"],
+        allow_credentials=True,
+        allow_methods=["GET", "POST", "OPTIONS", "DELETE"],
+        allow_headers=["*"],
+    )
 
     return application
 
