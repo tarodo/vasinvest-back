@@ -6,7 +6,7 @@ from pydantic import BaseModel, constr
 
 class CurrencyBase(BaseModel):
     code: constr(max_length=10)
-    name: Optional[constr(max_length=20)]
+    name: Optional[constr(max_length=40)]
     is_main: Optional[bool] = False
 
 

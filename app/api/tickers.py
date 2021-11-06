@@ -6,9 +6,9 @@ from fastapi import APIRouter, Depends, Path, Query
 from app.api import raise_400
 from app.api.deps import get_current_active_user
 from app.crud import platforms
-from app.crud.tickers import (create, get_by_code, get_by_id, get_multi,
-                              get_multi_by_owner, get_multi_by_platform,
-                              is_mine, update, delete)
+from app.crud.tickers import (create, delete, get_by_code, get_by_id,
+                              get_multi, get_multi_by_owner,
+                              get_multi_by_platform, is_mine, update)
 from app.models import Platforms, Tickers, Users
 from app.schemas import TickerIn, TickerOut
 
@@ -119,8 +119,8 @@ async def get_all_tickers(
 
 @router.delete("/{ticker_id}", response_model=TickerOut, status_code=200)
 async def delete_ticker(
-        ticker_id: int = Path(..., gt=0),
-        current_user: Users = Depends(get_current_active_user),
+    ticker_id: int = Path(..., gt=0),
+    current_user: Users = Depends(get_current_active_user),
 ) -> Tickers:
     """
     Delete ticker.

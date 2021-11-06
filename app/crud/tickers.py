@@ -47,14 +47,14 @@ async def get_multi_by_owner(user: Users, skip: int, limit: int) -> List[Tickers
         plat_tickers: List[Tickers] = await platform.tickers
         if plat_tickers:
             tickers += plat_tickers
-    return tickers[skip : skip + limit]
+    return tickers[skip: skip + limit]
 
 
 async def get_multi_by_platform(
     platform: Platforms, skip: int, limit: int
 ) -> List[Tickers]:
     tickers: List[Tickers] = await platform.tickers
-    return tickers[skip : skip + limit]
+    return tickers[skip: skip + limit]
 
 
 async def delete(ticker: Tickers) -> Tickers:

@@ -1,7 +1,7 @@
 from typing import List, Optional
 
-from app.models import Currencies, Users
-from app.schemas import CurrencyIn, CurrencyOut, CurrencyDBIn
+from app.models import Currencies
+from app.schemas import CurrencyDBIn, CurrencyIn
 
 
 async def get_by_code(user_id: int, code: str) -> Optional[Currencies]:
@@ -14,10 +14,35 @@ async def get_by_id(cur_id: int) -> Optional[Currencies]:
     return currency
 
 
-async def create(user: Users, payload: CurrencyIn) -> Currencies:
-    currency_in: CurrencyDBIn = CurrencyDBIn(user_id=user.id, **payload.dict())
-# TODO Add change for others status is_main to False
+async def create(user_id: int, payload: CurrencyIn) -> Currencies:
+    currency_in: CurrencyDBIn = CurrencyDBIn(user_id=user_id, **payload.dict())
+
+    currencies: List[Currencies] = await Currencies.filter(user_id=user_id).all()
+    for currency in currencies:
+        currency.is_main = False
+        await currency.save()
+
     currency: Currencies = Currencies(**currency_in.dict())
     await currency.save()
 
+    return currency
+
+
+async def update(currency: Currencies, payload: CurrencyIn) -> Currencies:
+    await currency.update_from_dict(payload.dict())
+    await currency.save()
+
+    return currency
+
+
+async def get_multi(skip: int, limit: int) -> List[Currencies]:
+    return await Currencies().all().offset(skip).limit(limit).all()
+
+
+async def get_multi_by_owner(user_id: int, skip: int, limit: int) -> List[Currencies]:
+    return await Currencies().filter(user_id=user_id).offset(skip).limit(limit).all()
+
+
+async def delete(currency: Currencies) -> Currencies:
+    await currency.delete()
     return currency
