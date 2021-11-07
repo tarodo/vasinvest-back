@@ -17,10 +17,11 @@ async def get_by_id(cur_id: int) -> Optional[Currencies]:
 async def create(user_id: int, payload: CurrencyIn) -> Currencies:
     currency_in: CurrencyDBIn = CurrencyDBIn(user_id=user_id, **payload.dict())
 
-    currencies: List[Currencies] = await Currencies.filter(user_id=user_id).all()
-    for currency in currencies:
-        currency.is_main = False
-        await currency.save()
+    if payload.is_main:
+        currencies: List[Currencies] = await Currencies.filter(user_id=user_id).all()
+        for currency in currencies:
+            currency.is_main = False
+            await currency.save()
 
     currency: Currencies = Currencies(**currency_in.dict())
     await currency.save()
